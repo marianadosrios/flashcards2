@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barbie Movie Archive | Flashcards Deluxe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;0,900;1,600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-magenta: #e60067;
+      --hot-pink: #ff1493;
+      --glow-pink: #ff66b2;
+      --soft-pink: #ffe6f2;
+      --dark-plum: #1c0210;
+      --text-dark: #2b0c1e;
+      --text-muted: #8a5874;
+      --glass-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(255, 20, 147, 0.3);
+      --neon-glow: 0 0 25px rgba(255, 20, 147, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #ffcbe1 0%, #f7d3e3 35%, #eec2d6 100%);
+      background-attachment: fixed;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-dark);
+      padding: 60px 20px;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Partículas luminosas ao fundo */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+        radial-gradient(rgba(255, 102, 178, 0.6) 1.5px, transparent 1.5px);
+      background-size: 40px 40px, 70px 70px;
+      background-position: 0 0, 20px 20px;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Cabeçalho */
+    header {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 750px;
+      margin: 0 auto 60px auto;
+    }
+
+    .badge-header {
+      display: inline-block;
+      padding: 6px 18px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--primary-magenta);
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--primary-magenta);
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(230, 0, 103, 0.15);
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: var(--dark-plum);
+      margin-bottom: 15px;
+      line-height: 1.1;
+    }
+
+    header h1 span {
+      background: linear-gradient(135deg, var(--primary-magenta), var(--hot-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-style: italic;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    /* Grid com Flashcards lado a lado */
+    .flashcards-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 35px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Container individual do Card (3D) */
+    .card-container {
+      height: 490px;
+      perspective: 1200px;
+      cursor: pointer;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+      border-radius: 26px;
+    }
+
+    .card-container:hover .card {
+      box-shadow: var(--neon-glow);
+    }
+
+    .card.flip {
+      transform: rotateY(180deg);
+    }
+
+    /* Faces da carta (Glassmorphism + Moldura Neon) */
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 26px;
+      border: 2px solid var(--card-border);
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 15px 35px rgba(180, 20, 90, 0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: border-color 0.4s ease, transform 0.3s ease;
+    }
+
+    .card-container:hover .front {
+      border-color: var(--hot-pink);
+    }
+
+    /* Capa / Imagem do Filme */
+    .image-wrapper {
+      position: relative;
+      width: 100%;
+      height: 270px;
+      overflow: hidden;
+    }
+
+    .card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      transition: transform 0.6s ease;
+    }
+
+    .card-container:hover .card-image {
+      transform: scale(1.06);
+    }
+
+    /* Tag de Ano / Categoria sobreposta à imagem */
+    .year-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(28, 2, 16, 0.75);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 102, 178, 0.5);
+    }
+
+    /* Conteúdo da Frente */
+    .card-body {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+
+    .movie-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 800;
+      color: var(--primary-magenta);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.45;
+      color: var(--dark-plum);
+    }
+
+    .action-hint {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--hot-pink);
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Verso do Card */
+    .back {
+      transform: rotateY(180deg);
+      background: linear-gradient(150deg, #2b071e 0%, #12010b 100%);
+      color: #ffffff;
+      border: 2px solid var(--hot-pink);
+      padding: 35px 25px;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+    }
+
+    .back-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .back-tag {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 800;
+      color: var(--glow-pink);
+    }
+
+    .answer-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      line-height: 1.4;
+      color: #fff0f6;
+      text-shadow: 0 0 15px rgba(255, 20, 147, 0.5);
+    }
+
+    .back .action-hint {
+      color: var(--soft-pink);
+    }
+
+    /* Rodapé Informativo */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-top: 60px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge-header">✦ Ultimate Cinema Collection ✦</div>
+    <h1>Barbie <span>Movie Club</span></h1>
+    <p>Explore as histórias marcantes da era moderna dos filmes da Barbie. Clique nos cards para testar sua memória!</p>
+  </header>
+
+  <!-- Container Grid para os 12 Flashcards lado a lado -->
+  <div class="flashcards-grid" id="grid"></div>
+
+  <footer>
+    <p>✨ Barbie Filmography Flashcards • Era Moderna (2011–2023)</p>
+  </footer>
+
+  <script>
+    // Coleção de 12 Filmes da Barbie (A partir de 2011)
+    const flashcardsData = [
+      {
+        movie: "Escola de Princesas",
+        year: "2011",
+        question: "Qual o nome da garota simples que descobre ser a herdeira do trono de Gardênia?",
+        answer: "Blair Willows (Princesa Sophia) 👑",
+        image: "https://m.media-amazon.com/images/M/MV5BMjA4MTk2MDA5MV5BMl5BanBnXkFtZTcwNDg3MjM2Ng@@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "O Segredo das Fadas",
+        year: "2011",
+        question: "Quem é raptado para o reino de Gloss Angeles por conta de uma poção do amor?",
+        answer: "O Ken 🧚‍♀️",
+        image: "https://m.media-amazon.com/images/M/MV5BN2E1NzA5MmYtNGE4OC00N2EzLThmZTUtMTc1NTdmNmQwYTZlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "A Princesa e a Popstar",
+        year: "2012",
+        question: "Quais são as duas personagens principais que trocam de lugar usando microfone e pente mágicos?",
+        answer: "Princesa Tori e Popstar Keira 🎤",
+        image: "https://m.media-amazon.com/images/M/MV5BNTBmNTI0MzItYzc4MC00MmI1LTgxMGEtNWU5Mzg2NmM5YWQxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "Barbie e as Sapatilhas Mágicas",
+        year: "2013",
+        question: "Para quais histórias de balé clássico as sapatilhas rosa levam a bailarina Kristyn?",
+        answer: "Giselle e O Lago dos Cisnes 🩰",
+        image: "https://m.media-amazon.com/images/M/MV5BMTY3OTkwMDkwOV5BMl5BanBnXkFtZTcwMzU1NTI4OA@@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "A Sereia das Pérolas",
+        year: "2014",
+        question: "Qual é o dom único e mágico da sereia Lumina sobre as pérolas do oceano?",
+        answer: "Fazer as pérolas dançarem e mudarem de cor 🦪✨",
+        image: "https://m.media-amazon.com/images/M/MV5BNTQyYjI5ZjQtZTg5My00NzFiLTgyZDItYTBiZTU5ZjllYmY0XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "Super Princesa",
+        year: "2015",
+        question: "Que animal morde a Princesa Kara e concede a ela superpoderes de heroína?",
+        answer: "Uma borboleta mágica 🦋⚡",
+        image: "https://m.media-amazon.com/images/M/MV5BMTgzNDkxMzk5M15BMl5BanBnXkFtZTgwNTc4MDM0NDE@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "Barbie e As Agentes Secretas",
+        year: "2016",
+        question: "Que esporte Barbie e suas amigas praticavam antes de serem recrutadas para serem espiãs?",
+        answer: "Ginástica Artística 🤸‍♀️",
+        image: "https://m.media-amazon.com/images/M/MV5BNjRmMjM4OTktMzg0MC00MzA2LWE2MWEtYmFiMDg2N2IwYWM1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "Barbie Em Um Mundo de Videogame",
+        year: "2017",
+        question: "Em qual formato visual Barbie se transforma ao ser puxada para dentro do seu jogo favorito?",
+        answer: "Em um avatar de estilo Anime/8-Bit 🎮",
+        image: "https://m.media-amazon.com/images/M/MV5BNTI2NzY3NzItZDViYi00NGQ2LTlhOTYtYTI3MTU5N2YxNWU1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "Princess Adventure",
+        year: "2020",
+        question: "Qual o nome da sósia real da Barbie do país de Floravia com quem ela troca de papel?",
+        answer: "Princesa Amelia 👑🎵",
+        image: "https://m.media-amazon.com/images/M/MV5BYzA2NzRhYzAtOTc5NS00MDVlLWE4NTgtYjc5NTRkOGM3YzFiXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "Big City, Big Dreams",
+        year: "2021",
+        question: "Qual cidade serve de palco para o encontro de Barbie Roberts de Malibu e Barbie Roberts do Brooklyn?",
+        answer: "Nova York (New York City) 🏙️✨",
+        image: "https://m.media-amazon.com/images/M/MV5BMjA5OTgxYTQtN2FiZS00YWMyLTk5MTgtMWM0YTE4OGI4N2I4XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "Barbie & Chelsea: O Aniversário Perdido",
+        year: "2021",
+        question: "Em que local paradisíaco a família da Barbie está viajando quando Chelsea acha que perdeu seu aniversário?",
+        answer: "Um navio de cruzeiro tropical 🛳️🏝️",
+        image: "https://m.media-amazon.com/images/M/MV5BNTQ0NWNmMDctYmRmNy00NjAyLWI5NDctZWFhYTI2MzRhYjg1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+      },
+      {
+        movie: "Barbie (Live-Action)",
+        year: "2023",
+        question: "Qual cineasta aclamada dirigiu o estrondoso sucesso de bilheteria estrelado por Margot Robbie?",
+        answer: "Greta Gerwig 🎬🎀",
+        image: "https://m.media-amazon.com/images/M/MV5BNjU3N2QxNzYtMjk1NC00MTc4LTk1NTQtMmUxNTljM2I0NDA5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"
+      }
+    ];
+
+    const grid = document.getElementById('grid');
+
+    // Função de renderização rápida e limpa no DOM
+    function renderCards() {
+      grid.innerHTML = flashcardsData.map((data) => `
+        <div class="card-container" onclick="flipCard(this)">
+          <div class="card">
+            <!-- Frente do Card -->
+            <div class="front">
+              <div class="image-wrapper">
+                <img src="${data.image}" alt="${data.movie}" class="card-image">
+                <span class="year-badge">${data.year}</span>
+              </div>
+              <div class="card-body">
+                <div>
+                  <div class="movie-title">✦ ${data.movie}</div>
+                  <p class="question-text">${data.question}</p>
+                </div>
+                <div class="action-hint">
+                  ✨ Clique para revelar a resposta
+                </div>
+              </div>
+            </div>
+            <!-- Verso do Card -->
+            <div class="back">
+              <div class="back-header">
+                <span class="back-tag">✦ ${data.movie}</span>
+                <span class="back-tag">${data.year}</span>
+              </div>
+              <p class="answer-text">${data.answer}</p>
+              <div class="action-hint">
+                ✦ Clique para girar novamente
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function flipCard(container) {
+      const card = container.querySelector('.card');
+      card.classList.toggle('flip');
+    }
+
+    // Inicializar os Cards
+    renderCards();
+  </script>
+</body>
+</html>
